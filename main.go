@@ -1,21 +1,25 @@
 package main
 
 import (
-	productController "enigma.com/learn-golang/controllers/productController"
 	"github.com/gin-gonic/gin"
 
 	db "enigma.com/learn-golang/database"
+	"enigma.com/learn-golang/routes"
 )
 
 func main() {
+	port := "8080"
+
 	r := gin.Default()
 	db.ConnectDatabase()
 
-	r.GET("/api/products", productController.Index)
-	r.GET("/api/products/:id", productController.Show)
-	r.POST("/api/products", productController.Create)
-	r.PUT("/api/products/:id", productController.Update)
-	r.DELETE("/api/products/:id", productController.Delete)
+	routes.ProductRoutes(r)
+	routes.UserRoutes(r)
 
-	r.Run()
+	r.GET("/api-1", func(c *gin.Context) {
+
+		c.JSON(200, gin.H{"success": "Access granted for api-1"})
+
+	})
+	r.Run(":" + port)
 }

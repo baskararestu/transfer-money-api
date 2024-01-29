@@ -6,10 +6,10 @@ import (
 	db "enigma.com/learn-golang/database"
 	"enigma.com/learn-golang/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-// Response represents the structure of the response
 type Response struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
@@ -29,10 +29,10 @@ func Index(c *gin.Context) {
 }
 
 func Show(c *gin.Context) {
-	var products models.Product
+	var product models.Product
 	id := c.Param("id")
 
-	if err := db.DB.First(&products, id).Error; err != nil {
+	if err := db.DB.Where("id = ?", id).First(&product).Error; err != nil {
 		switch err {
 		case gorm.ErrRecordNotFound:
 			response := Response{
@@ -50,11 +50,10 @@ func Show(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Products retrieved successfully", "products": products})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Product retrieved successfully", "product": product})
 }
 
 func Create(c *gin.Context) {
-
 	var product models.Product
 
 	if err := c.ShouldBindJSON(&product); err != nil {
@@ -63,9 +62,20 @@ func Create(c *gin.Context) {
 			Message: err.Error(),
 		}
 		c.JSON(http.StatusBadRequest, response)
+		return
 	}
 
-	db.DB.Create(&product)
+	product.Id = uuid.New().String()
+
+	if err := db.DB.Create(&product).Error; err != nil {
+		response := Response{
+			Success: false,
+			Message: "Failed to create product",
+		}
+		c.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
 	response := Response{
 		Success: true,
 		Message: "Product created successfully",
@@ -75,9 +85,7 @@ func Create(c *gin.Context) {
 }
 
 func Update(c *gin.Context) {
-
 }
 
 func Delete(c *gin.Context) {
-
 }

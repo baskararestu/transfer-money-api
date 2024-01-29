@@ -3,21 +3,22 @@ package database
 import (
 	"log"
 
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	models "enigma.com/learn-golang/models"
+	"enigma.com/learn-golang/models"
 )
 
 var DB *gorm.DB
 
 func ConnectDatabase() {
-	database, err := gorm.Open(mysql.Open("root:root@tcp(localhost:3306)/db_learn_golang"))
+	dsn := "postgres://postgres:postgres@localhost:5432/db_learn_golang"
+	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 
-	if err := database.AutoMigrate(&models.Product{}); err != nil {
+	if err := database.AutoMigrate(&models.Product{}, &models.User{}); err != nil {
 		log.Fatalf("failed to migrate database schema: %v", err)
 	}
 
