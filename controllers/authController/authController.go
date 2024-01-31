@@ -52,7 +52,9 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	bankAccountID, err := services.CreateBankAccountForUserInTransaction(tx, userID)
+	accountNumber := services.GenerateAccountNumber()
+
+	bankAccountID, err := services.CreateBankAccountForUser(tx, userID, accountNumber)
 	if err != nil {
 		tx.Rollback()
 		response := response.NewErrorResponse("Failed to create bank account")

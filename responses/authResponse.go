@@ -53,11 +53,12 @@ func NewErrorResponse(message string) ErrorResponse {
 }
 
 type BankAccountDetail struct {
-	ID        string    `json:"id"`
-	UserID    string    `json:"user_id"`
-	Balance   float64   `json:"balance"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID            string    `json:"id"`
+	UserID        string    `json:"user_id"`
+	AccountNumber string    `json:"account_number"`
+	Balance       float64   `json:"balance"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 type CreateUserResponse struct {
 	Success     bool               `json:"success"`
@@ -86,11 +87,12 @@ func NewCreateUserResponse(user *models.User, bankAccount *models.BankAccount) *
 			UpdatedAt: user.UpdatedAt,
 		},
 		BankAccount: &BankAccountDetail{
-			ID:        bankAccount.ID.String(),
-			UserID:    bankAccount.UserID.String(),
-			Balance:   bankAccount.Balance,
-			CreatedAt: bankAccount.CreatedAt,
-			UpdatedAt: bankAccount.UpdatedAt,
+			ID:            bankAccount.ID.String(),
+			UserID:        bankAccount.UserID.String(),
+			AccountNumber: bankAccount.AccountNumber,
+			Balance:       bankAccount.Balance,
+			CreatedAt:     bankAccount.CreatedAt,
+			UpdatedAt:     bankAccount.UpdatedAt,
 		},
 	}
 }
