@@ -15,6 +15,7 @@ func main() {
 
 	routes.UserRoutes(r)
 	routes.TransactionRoutes(r)
+	routes.AuthRoutes(r)
 
 	r.GET("/api-1", func(c *gin.Context) {
 
