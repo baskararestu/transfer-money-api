@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"os"
 	"time"
 
 	"github.com/baskararestu/transfer-money/database"
@@ -73,10 +72,6 @@ func GenerateToken(user *models.User) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["user_id"] = user.Id
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-	signingKey := os.Getenv("JWT_SECRET")
-	if signingKey == "" {
-		return "", errors.New("token signing key not found in environment variable")
-	}
 
-	return token.SignedString([]byte(signingKey))
+	return token.SignedString([]byte("secret"))
 }
