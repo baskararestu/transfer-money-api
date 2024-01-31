@@ -5,21 +5,16 @@ import (
 
 	db "github.com/baskararestu/transfer-money/database"
 	"github.com/baskararestu/transfer-money/models"
+	mainresponse "github.com/baskararestu/transfer-money/responses/mainResponse"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
-
-type Response struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
 
 func Index(c *gin.Context) {
 	var users []models.User
 
 	db.DB.Find(&users)
-	response := Response{
+	response := mainresponse.DataResponse{
 		Success: true,
 		Message: "Users retrieved successfully",
 		Data:    users,
@@ -34,14 +29,14 @@ func Show(c *gin.Context) {
 	if err := db.DB.Where("id = ?", id).First(&user).Error; err != nil {
 		switch err {
 		case gorm.ErrRecordNotFound:
-			response := Response{
+			response := mainresponse.DataResponse{
 				Success: false,
 				Message: "User not found",
 			}
 			c.JSON(http.StatusNotFound, response)
 			return
 		default:
-			response := Response{
+			response := mainresponse.DataResponse{
 				Success: false,
 				Message: err.Error(),
 			}
@@ -49,7 +44,12 @@ func Show(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "User retrieved successfully", "user": user})
+	response := mainresponse.DataResponse{
+		Success: true,
+		Message: "User retrieved successfully",
+		Data:    user,
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func Update(c *gin.Context) {
