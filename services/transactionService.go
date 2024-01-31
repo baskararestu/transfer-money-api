@@ -138,7 +138,6 @@ func TransferService(c *gin.Context, receiverAccountNumber string, amount float6
 		return transactionresponse.TransferServiceResult{Error: fmt.Errorf("failed to update receiver's bank account balance: %v", err)}
 	}
 
-	// Retrieve receiver's name
 	receiverName := ""
 	if err := tx.Model(&receiverAccount.User).Select("full_name").Scan(&receiverName).Error; err != nil {
 		tx.Rollback()
