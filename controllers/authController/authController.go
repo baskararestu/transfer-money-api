@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/baskararestu/transfer-money/database"
+	"github.com/baskararestu/transfer-money/middlewares"
 	"github.com/baskararestu/transfer-money/models"
 	authresponse "github.com/baskararestu/transfer-money/responses/authResponse"
 	errorresponse "github.com/baskararestu/transfer-money/responses/errorResponse"
@@ -98,4 +99,25 @@ func Login(c *gin.Context) {
 
 	loginResponse := authresponse.NewLoginResponse(token, user)
 	c.JSON(http.StatusOK, loginResponse)
+}
+
+func Logout(c *gin.Context) {
+	tokenString := getTokenFromRequest(c)
+
+	if err := middlewares.BlacklistToken(tokenString); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to logout"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Logout successful"})
+}
+
+func getTokenFromRequest(c *gin.Context) string {
+	token := c.GetHeader("Authorization")
+
+	if token == "" {
+		token, _ = c.Cookie("jwt_token")
+	}
+
+	return token
 }
