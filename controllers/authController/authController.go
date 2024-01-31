@@ -3,19 +3,23 @@ package authcontroller
 import (
 	"net/http"
 
-	response "github.com/baskararestu/transfer-money/dto/responses"
+	"github.com/baskararestu/transfer-money/database"
 	"github.com/baskararestu/transfer-money/models"
+	response "github.com/baskararestu/transfer-money/responses"
 	"github.com/baskararestu/transfer-money/services"
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-
-	"github.com/gin-gonic/gin"
 )
 
-// CreateUser handles user creation requests.
 func CreateUser(c *gin.Context) {
 	var user models.User
-
+	tx := database.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 	if err := c.ShouldBindJSON(&user); err != nil {
 		response := response.NewErrorResponse(err.Error())
 		c.JSON(http.StatusBadRequest, response)
@@ -28,19 +32,48 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	user.Id = uuid.New().String()
-	if err := services.CreateUserRecord(&user); err != nil {
+	userID := uuid.New().String()
+
+	user.Id = userID
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		tx.Rollback()
+		response := response.NewErrorResponse("Failed to hash password")
+		c.JSON(http.StatusInternalServerError, response)
+		return
+	}
+	user.Password = string(hashedPassword)
+
+	if err := services.CreateUserRecordInTransaction(tx, &user); err != nil {
+		tx.Rollback()
 		response := response.NewErrorResponse("Failed to create user")
 		c.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
-	user.Password = "" // Remove password from response
-	response := response.NewCreateUserResponse(&user)
+	bankAccountID, err := services.CreateBankAccountForUserInTransaction(tx, userID)
+	if err != nil {
+		tx.Rollback()
+		response := response.NewErrorResponse("Failed to create bank account")
+		c.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	tx.Commit()
+
+	bankAccount, err := services.GetBankAccountByID(bankAccountID)
+	if err != nil {
+		response := response.NewErrorResponse("Failed to retrieve bank account details")
+		c.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	user.Password = ""
+	response := response.NewCreateUserResponse(&user, bankAccount)
 	c.JSON(http.StatusOK, response)
 }
 
-// Login handles user login requests.
 func Login(c *gin.Context) {
 	var req struct {
 		Email    string `json:"email"`

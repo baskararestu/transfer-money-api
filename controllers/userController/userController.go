@@ -53,9 +53,7 @@ func Show(c *gin.Context) {
 }
 
 func Update(c *gin.Context) {
-	// Implement update logic
 }
 
 func Delete(c *gin.Context) {
-	// Implement delete logic
 }

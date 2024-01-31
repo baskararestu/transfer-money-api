@@ -1,4 +1,3 @@
-// models/bank_account.go
 package models
 
 import (

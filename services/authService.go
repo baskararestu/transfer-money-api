@@ -7,18 +7,17 @@ import (
 	"github.com/baskararestu/transfer-money/models"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
-// CheckExistingUser checks if a user with the given email already exists.
 func CheckExistingUser(email string) error {
 	var existingUser models.User
 	if err := database.DB.Where("email = ?", email).First(&existingUser).Error; err != nil {
-		return err // User does not exist, return nil error
+		return err
 	}
-	return nil // User exists, return non-nil error
+	return nil
 }
 
-// CreateUserRecord creates a new user record in the database.
 func CreateUserRecord(user *models.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -32,7 +31,6 @@ func CreateUserRecord(user *models.User) error {
 	return nil
 }
 
-// GetUserByEmail retrieves a user record from the database by email.
 func GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	if err := database.DB.Where("email = ?", email).First(&user).Error; err != nil {
@@ -41,7 +39,15 @@ func GetUserByEmail(email string) (*models.User, error) {
 	return &user, nil
 }
 
-// GenerateToken generates a JWT token for authentication.
+func CreateUserRecordInTransaction(tx *gorm.DB, user *models.User) error {
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
+	if err := tx.Create(user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func GenerateToken(user *models.User) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)

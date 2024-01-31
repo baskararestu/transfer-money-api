@@ -1,4 +1,3 @@
-// models/transaction.go
 package models
 
 import (
