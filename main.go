@@ -14,6 +14,7 @@ func main() {
 	db.ConnectDatabase()
 
 	routes.UserRoutes(r)
+	routes.TransactionRoutes(r)
 
 	r.GET("/api-1", func(c *gin.Context) {
 
