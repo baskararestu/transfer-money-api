@@ -1,5 +1,3 @@
-// services/bank_account_service.go
-
 package services
 
 import (
@@ -49,4 +47,33 @@ func GenerateAccountNumber() string {
 	randomDigits = fmt.Sprintf("%09v", randomDigits)
 
 	return "101" + randomDigits
+}
+
+func RollbackDepositTransaction(userID uuid.UUID, amount float64) error {
+	tx := database.DB.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	bankAccount, err := getBankAccountByUserID(tx, userID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	bankAccount.Balance -= amount
+
+	if err := tx.Save(&bankAccount).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

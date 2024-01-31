@@ -18,7 +18,8 @@ func ConnectDatabase() {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 
-	if err := database.AutoMigrate(&models.User{}, &models.BankAccount{}, &models.Transaction{}); err != nil {
+	if err := database.AutoMigrate(&models.User{}, &models.BankAccount{},
+		&models.Transaction{}, &models.TransactionHistory{}); err != nil {
 		log.Fatalf("failed to migrate database schema: %v", err)
 	}
 
