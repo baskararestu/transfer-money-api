@@ -42,6 +42,6 @@ To get started with the Transfer Money API, follow these steps:
 - GORM - ORM (Object-Relational Mapping) library for working with databases in Go.
 - PostgreSQL - Database management system for storing user and transaction data.
 
-## License
+## Disclaimer
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is free and open for everyone to use, modify, and distribute. There are no specific licenses associated with this project.
