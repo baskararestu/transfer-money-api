@@ -7,19 +7,14 @@ import (
 	"github.com/baskararestu/transfer-money/database"
 	"github.com/baskararestu/transfer-money/middlewares"
 	"github.com/baskararestu/transfer-money/models"
+	transactionresponse "github.com/baskararestu/transfer-money/responses/transactionResponse"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-type DepositResponse struct {
-	AccountName   string  `json:"account_name"`
-	AccountNumber string  `json:"account_number"`
-	Balance       float64 `json:"balance"`
-}
-
 type DepositServiceResult struct {
-	DepositResponse
+	transactionresponse.DepositResponse
 	Error error
 }
 
@@ -55,16 +50,33 @@ func DepositService(c *gin.Context, amount float64) DepositServiceResult {
 		return DepositServiceResult{Error: fmt.Errorf("failed to update bank account balance: %v", err)}
 	}
 
+	transaction := models.Transaction{
+		ID:          uuid.New(),
+		AccountID:   bankAccount.ID,
+		ToAccountID: bankAccount.ID,
+		Amount:      amount,
+		Type:        models.DepositTransaction,
+		Status:      "completed",
+	}
+
+	if err := createTransaction(tx, &transaction); err != nil {
+		tx.Rollback()
+		return DepositServiceResult{Error: fmt.Errorf("failed to create transaction: %v", err)}
+	}
+
 	if err := tx.Commit().Error; err != nil {
 		return DepositServiceResult{Error: fmt.Errorf("failed to commit transaction: %v", err)}
 	}
 
-	response := DepositResponse{
-		AccountName:   user.FullName,
-		AccountNumber: bankAccount.AccountNumber,
-		Balance:       bankAccount.Balance,
+	response := transactionresponse.DepositResponse{
+		Message: "Deposit successful",
+		Success: true,
+		Data: transactionresponse.CurrentBalance{
+			AccountName:    user.FullName,
+			AccountNumber:  bankAccount.AccountNumber,
+			CurrentBalance: bankAccount.Balance,
+		},
 	}
-
 	return DepositServiceResult{DepositResponse: response}
 }
 
@@ -74,4 +86,11 @@ func getBankAccountByUserID(tx *gorm.DB, userID uuid.UUID) (*models.BankAccount,
 		return nil, err
 	}
 	return &bankAccount, nil
+}
+
+func createTransaction(tx *gorm.DB, transaction *models.Transaction) error {
+	if err := tx.Create(transaction).Error; err != nil {
+		return err
+	}
+	return nil
 }
