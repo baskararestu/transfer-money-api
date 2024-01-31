@@ -35,7 +35,7 @@ func CreateUser(c *gin.Context) {
 
 	userID := uuid.New().String()
 
-	user.Id = userID
+	user.Id = uuid.MustParse(userID)
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {

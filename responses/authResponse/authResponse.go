@@ -28,7 +28,7 @@ func NewCreateUserResponse(user *models.User, bankAccount *models.BankAccount) *
 		Success: true,
 		Message: "User created successfully",
 		Data: &userresponse.UserDetail{
-			ID:        user.Id,
+			ID:        user.Id.String(),
 			FullName:  user.FullName,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt,

@@ -4,13 +4,23 @@ import (
 	"github.com/google/uuid"
 )
 
-type Transaction struct {
-	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	UserID      uuid.UUID `json:"user_id"`
-	ToAccount   uuid.UUID `json:"to_account"`
-	Amount      float64   `json:"amount"`
-	Description string    `json:"description"`
-	Status      string    `json:"status"`
+type TransactionType string
 
-	User User `gorm:"foreignKey:UserID"`
+const (
+	DepositTransaction  TransactionType = "deposit"
+	TransferTransaction TransactionType = "transfer"
+	PaymentTransaction  TransactionType = "payment"
+)
+
+type Transaction struct {
+	ID          uuid.UUID       `gorm:"type:uuid;primaryKey" json:"id"`
+	AccountID   uuid.UUID       `json:"account_id"`
+	ToAccountID uuid.UUID       `json:"to_account_id"`
+	Amount      float64         `json:"amount"`
+	Type        TransactionType `json:"type"`
+	Status      string          `json:"status"`
+
+	Account BankAccount `gorm:"foreignKey:AccountID"`
+
+	ToAccount BankAccount `gorm:"foreignKey:ToAccountID"`
 }

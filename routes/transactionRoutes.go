@@ -12,5 +12,6 @@ func TransactionRoutes(router *gin.Engine) {
 
 	{
 		transaction.POST("/deposit", transactioncontroller.Deposit)
+		transaction.POST("/transfer", transactioncontroller.Transfer)
 	}
 }
