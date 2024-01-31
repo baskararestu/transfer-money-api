@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"time"
 
 	"github.com/baskararestu/transfer-money/database"
@@ -46,6 +47,24 @@ func CreateUserRecordInTransaction(tx *gorm.DB, user *models.User) error {
 		return err
 	}
 	return nil
+}
+
+func Login(email, password string) (string, *models.User, error) {
+	user, err := GetUserByEmail(email)
+	if err != nil {
+		return "", nil, errors.New("invalid email or password")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return "", nil, errors.New("invalid email or password")
+	}
+
+	token, err := GenerateToken(user)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return token, user, nil
 }
 
 func GenerateToken(user *models.User) (string, error) {

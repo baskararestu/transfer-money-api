@@ -88,20 +88,10 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	user, err := services.GetUserByEmail(req.Email)
+	token, user, err := services.Login(req.Email, req.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, response.NewErrorResponse("Invalid email or password"))
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, response.NewErrorResponse("Invalid email or password"))
-		return
-	}
-
-	token, err := services.GenerateToken(user)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.NewErrorResponse("Failed to generate token"))
+		response := response.NewErrorResponse(err.Error())
+		c.JSON(http.StatusUnauthorized, response)
 		return
 	}
 
