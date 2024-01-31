@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"os"
 	"time"
 
 	"github.com/baskararestu/transfer-money/database"
@@ -72,6 +73,7 @@ func GenerateToken(user *models.User) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["user_id"] = user.Id
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	jwtSecret := os.Getenv("JWT_SECRET")
 
-	return token.SignedString([]byte("secret"))
+	return token.SignedString([]byte(jwtSecret))
 }
