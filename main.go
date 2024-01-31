@@ -3,17 +3,16 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 
-	db "enigma.com/learn-golang/database"
-	"enigma.com/learn-golang/routes"
+	db "github.com/baskararestu/transfer-money/database"
+	"github.com/baskararestu/transfer-money/routes"
 )
 
 func main() {
-	port := "8080"
+	port := "5500"
 
 	r := gin.Default()
 	db.ConnectDatabase()
 
-	routes.ProductRoutes(r)
 	routes.UserRoutes(r)
 
 	r.GET("/api-1", func(c *gin.Context) {

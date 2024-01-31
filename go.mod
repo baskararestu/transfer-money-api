@@ -1,4 +1,4 @@
-module enigma.com/learn-golang
+module github.com/baskararestu/transfer-money
 
 go 1.21.1
 

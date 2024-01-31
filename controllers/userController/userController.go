@@ -3,11 +3,9 @@ package usercontroller
 import (
 	"net/http"
 
-	db "enigma.com/learn-golang/database"
-	"enigma.com/learn-golang/models"
+	db "github.com/baskararestu/transfer-money/database"
+	"github.com/baskararestu/transfer-money/models"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -52,49 +50,6 @@ func Show(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "User retrieved successfully", "user": user})
-}
-
-func CreateUser(c *gin.Context) {
-	var user models.User
-
-	if err := c.ShouldBindJSON(&user); err != nil {
-		response := Response{
-			Success: false,
-			Message: err.Error(),
-		}
-		c.JSON(http.StatusBadRequest, response)
-		return
-	}
-	user.Id = uuid.New().String()
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		response := Response{
-			Success: false,
-			Message: "Failed to hash password",
-		}
-		c.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	user.Password = string(hashedPassword)
-
-	if err := db.DB.Create(&user).Error; err != nil {
-		response := Response{
-			Success: false,
-			Message: "Failed to create user",
-		}
-		c.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	user.Password = "" // Remove password from response
-	response := Response{
-		Success: true,
-		Message: "User created successfully",
-		Data:    user,
-	}
-	c.JSON(http.StatusOK, response)
 }
 
 func Update(c *gin.Context) {

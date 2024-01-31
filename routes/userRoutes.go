@@ -1,8 +1,8 @@
 package routes
 
 import (
-	authcontroller "enigma.com/learn-golang/controllers/authController"
-	userController "enigma.com/learn-golang/controllers/userController"
+	authcontroller "github.com/baskararestu/transfer-money/controllers/authController"
+	userController "github.com/baskararestu/transfer-money/controllers/userController"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,12 +11,12 @@ func UserRoutes(router *gin.Engine) {
 	{
 		userGroup.GET("/", userController.Index)
 		userGroup.GET("/:id", userController.Show)
-		userGroup.POST("/", userController.CreateUser)
 		userGroup.PUT("/:id", userController.Update)
 		userGroup.DELETE("/:id", userController.Delete)
 	}
 	authGroup := router.Group("/api/auth")
 	{
 		authGroup.POST("/login", authcontroller.Login)
+		authGroup.POST("/register", authcontroller.CreateUser)
 	}
 }
