@@ -15,7 +15,8 @@ import (
 
 type DepositServiceResult struct {
 	transactionresponse.DepositResponse
-	Error error
+	Transaction models.Transaction
+	Error       error
 }
 
 func DepositService(c *gin.Context, amount float64) DepositServiceResult {
@@ -77,7 +78,10 @@ func DepositService(c *gin.Context, amount float64) DepositServiceResult {
 			CurrentBalance: bankAccount.Balance,
 		},
 	}
-	return DepositServiceResult{DepositResponse: response}
+	return DepositServiceResult{
+		DepositResponse: response,
+		Transaction:     transaction, // Include the transaction here
+	}
 }
 
 func getBankAccountByUserID(tx *gorm.DB, userID uuid.UUID) (*models.BankAccount, error) {
