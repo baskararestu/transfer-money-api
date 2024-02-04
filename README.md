@@ -28,7 +28,6 @@ To get started with the Transfer Money API, follow these steps:
 
 - `POST /api/auth/login`: User login endpoint.
 - `POST /api/auth/register`: User registration endpoint.
-- `POST /api/auth/logout`: User logout endpoint.
 - `POST /api/transaction/deposit`: Deposit money into user account.
 - `POST /api/transaction/transfer`: Transfer money between accounts.
 - `GET /api/users`: Get all users.
